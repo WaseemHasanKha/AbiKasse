@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Abikasse 💰</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon">🎓</span>
+        <span class="logo-text">Abikasse</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fa fa-bars"></i>
+      </button>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active" data-page="dashboard"><i class="fa fa-gauge-high"></i><span>Dashboard</span></a></li>
+      <li><a href="#" class="nav-link" data-page="produkte"><i class="fa fa-box-open"></i><span>Produkte</span></a></li>
+      <li><a href="#" class="nav-link" data-page="kasse"><i class="fa fa-cash-register"></i><span>Kasse</span></a></li>
+      <li><a href="#" class="nav-link" data-page="einnahmen"><i class="fa fa-hand-holding-dollar"></i><span>Andere Einnahmen</span></a></li>
+      <li><a href="#" class="nav-link" data-page="kassenstand"><i class="fa fa-wallet"></i><span>Kassenstand</span></a></li>
+      <li><a href="#" class="nav-link" data-page="historie"><i class="fa fa-clock-rotate-left"></i><span>Verlauf</span></a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="total-badge">
+        <span class="total-label">Gesamtgewinn</span>
+        <span class="total-amount" id="sidebarTotal">0,00 €</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content" id="mainContent">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fa fa-bars"></i></button>
+        <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="date-chip">
+          <i class="fa fa-calendar"></i>
+          <span id="currentDate"></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card accent-green">
+          <div class="stat-icon"><i class="fa fa-arrow-trend-up"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Gesamtgewinn</span>
+            <span class="stat-value" id="dash-gesamtgewinn">0,00 €</span>
+          </div>
+        </div>
+        <div class="stat-card accent-blue">
+          <div class="stat-icon"><i class="fa fa-basket-shopping"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Verkaufseinnahmen</span>
+            <span class="stat-value" id="dash-verkauf">0,00 €</span>
+          </div>
+        </div>
+        <div class="stat-card accent-purple">
+          <div class="stat-icon"><i class="fa fa-coins"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Andere Einnahmen</span>
+            <span class="stat-value" id="dash-sonstige">0,00 €</span>
+          </div>
+        </div>
+        <div class="stat-card accent-orange">
+          <div class="stat-icon"><i class="fa fa-wallet"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Kassenstand</span>
+            <span class="stat-value" id="dash-kassenstand">0,00 €</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card chart-card">
+          <div class="card-header"><h2>Einnahmen Verlauf</h2></div>
+          <div class="chart-container">
+            <canvas id="einnahmenChart"></canvas>
+            <div class="chart-empty" id="chartEmpty">
+              <i class="fa fa-chart-line"></i>
+              <p>Noch keine Daten</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2><i class="fa fa-triangle-exclamation"></i> Niedriger Bestand</h2></div>
+          <div class="low-stock-list" id="lowStockList">
+            <div class="empty-state"><i class="fa fa-check-circle"></i><p>Alles gut bestückt!</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Letzte Verkäufe</h2>
+          <a href="#" class="link-btn" data-page="historie">Alle anzeigen →</a>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead><tr><th>Zeit</th><th>Artikel</th><th>Menge</th><th>Einnahme</th><th>Gewinn</th></tr></thead>
+            <tbody id="recentSalesBody"><tr class="empty-row"><td colspan="5">Noch keine Verkäufe</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUKTE -->
+    <section class="page" id="page-produkte">
+      <div class="card">
+        <div class="card-header"><h2>Neues Produkt hinzufügen</h2></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Produktname</label>
+            <input type="text" id="prod-name" placeholder="z.B. Cola, Chips…"/>
+          </div>
+          <div class="form-group">
+            <label>Einkaufspreis (€)</label>
+            <input type="number" id="prod-einkauf" placeholder="0.50" step="0.01" min="0"/>
+          </div>
+          <div class="form-group">
+            <label>Verkaufspreis (€)</label>
+            <input type="number" id="prod-verkauf" placeholder="1.00" step="0.01" min="0"/>
+          </div>
+          <div class="form-group">
+            <label>Anzahl eingekauft</label>
+            <input type="number" id="prod-menge" placeholder="50" min="0"/>
+          </div>
+          <div class="form-group">
+            <label>Kategorie</label>
+            <input type="text" id="prod-kategorie" placeholder="z.B. Getränke, Snacks…"/>
+          </div>
+          <div class="form-group form-group--wide">
+            <div class="gewinn-preview">
+              <span>Gewinn pro Stück:</span>
+              <strong id="gewinnProStueck">— €</strong>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="addProduktBtn"><i class="fa fa-plus"></i> Produkt hinzufügen</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Alle Produkte</h2>
+          <input type="text" class="search-input" id="produktSearch" placeholder="Suchen…"/>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Kategorie</th><th>Einkauf</th><th>Verkauf</th><th>Gewinn/Stk</th><th>Bestand</th><th>Pot. Gewinn</th><th>Aktion</th></tr></thead>
+            <tbody id="produktTableBody"><tr class="empty-row"><td colspan="8">Noch keine Produkte</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- KASSE -->
+    <section class="page" id="page-kasse">
+      <div class="kasse-layout">
+        <div class="kasse-left">
+          <div class="card">
+            <div class="card-header">
+              <h2>Produkte</h2>
+              <input type="text" class="search-input" id="kasseSearch" placeholder="Suchen…"/>
+            </div>
+            <div class="produkt-grid" id="kasseProduktGrid">
+              <div class="empty-state"><i class="fa fa-box-open"></i><p>Erst Produkte anlegen</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kasse-right">
+          <div class="card kasse-card">
+            <div class="card-header">
+              <h2><i class="fa fa-cart-shopping"></i> Warenkorb</h2>
+              <button class="btn btn-ghost btn-sm" id="clearCartBtn"><i class="fa fa-trash"></i> Leeren</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+              <div class="empty-state" id="cartEmpty"><i class="fa fa-cart-shopping"></i><p>Warenkorb leer</p></div>
+            </div>
+            <div class="cart-footer">
+              <div class="cart-totals">
+                <div class="cart-total-row"><span>Zwischensumme</span><span id="cartSubtotal">0,00 €</span></div>
+                <div class="cart-total-row cart-total-row--main"><span>Gesamt</span><span id="cartTotal">0,00 €</span></div>
+                <div class="cart-total-row accent-green"><span>Gewinn dieser Transaktion</span><span id="cartProfit">0,00 €</span></div>
+              </div>
+              <div class="payment-section">
+                <div class="form-group">
+                  <label>Gegeben (€)</label>
+                  <input type="number" id="gegeben" placeholder="0.00" step="0.01" min="0"/>
+                </div>
+                <div class="rueckgeld-display">
+                  Rückgeld: <strong id="rueckgeld">—</strong>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-large" id="verkaufAbschliessenBtn" disabled>
+                <i class="fa fa-check"></i> Verkauf abschließen
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANDERE EINNAHMEN -->
+    <section class="page" id="page-einnahmen">
+      <div class="card">
+        <div class="card-header"><h2>Einnahme eintragen</h2></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Beschreibung</label>
+            <input type="text" id="ein-beschreibung" placeholder="z.B. Tombola, Sponsoring…"/>
+          </div>
+          <div class="form-group">
+            <label>Betrag (€)</label>
+            <input type="number" id="ein-betrag" placeholder="0.00" step="0.01" min="0"/>
+          </div>
+          <div class="form-group">
+            <label>Kategorie</label>
+            <select id="ein-kategorie">
+              <option value="Tombola">Tombola</option>
+              <option value="Sponsoring">Sponsoring</option>
+              <option value="Spende">Spende</option>
+              <option value="Veranstaltung">Veranstaltung</option>
+              <option value="Sonstiges">Sonstiges</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Datum</label>
+            <input type="date" id="ein-datum"/>
+          </div>
+          <div class="form-group form-group--wide">
+            <label>Notiz (optional)</label>
+            <input type="text" id="ein-notiz" placeholder="Zusätzliche Infos…"/>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="addEinnahmeBtn"><i class="fa fa-plus"></i> Einnahme hinzufügen</button>
+        </div>
+      </div>
+      <div class="stats-grid stats-grid--small" id="einnahmenKategorien"></div>
+      <div class="card">
+        <div class="card-header"><h2>Alle sonstigen Einnahmen</h2></div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead><tr><th>Datum</th><th>Beschreibung</th><th>Kategorie</th><th>Betrag</th><th>Notiz</th><th>Aktion</th></tr></thead>
+            <tbody id="einnahmenTableBody"><tr class="empty-row"><td colspan="6">Noch keine Einnahmen</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- KASSENSTAND -->
+    <section class="page" id="page-kassenstand">
+      <div class="card balance-hero">
+        <div class="balance-display">
+          <span class="balance-label">Aktueller Kassenstand</span>
+          <span class="balance-amount" id="kassenstandBetrag">0,00 €</span>
+        </div>
+        <div class="balance-breakdown">
+          <div class="breakdown-item"><span>Aus Verkäufen</span><span id="ks-verkauf">0,00 €</span></div>
+          <div class="breakdown-item"><span>Andere Einnahmen</span><span id="ks-sonstige">0,00 €</span></div>
+          <div class="breakdown-item"><span>Entnahmen</span><span id="ks-entnahmen" class="text-red">0,00 €</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Geld einlegen / entnehmen</h2></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Typ</label>
+            <select id="bewegung-typ">
+              <option value="einlage">Einlage</option>
+              <option value="entnahme">Entnahme</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Betrag (€)</label>
+            <input type="number" id="bewegung-betrag" placeholder="0.00" step="0.01" min="0"/>
+          </div>
+          <div class="form-group form-group--wide">
+            <label>Grund</label>
+            <input type="text" id="bewegung-grund" placeholder="z.B. Wechselgeld, Ausgabe…"/>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="addBewegungBtn"><i class="fa fa-money-bill-transfer"></i> Buchen</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Kassenbuch</h2></div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead><tr><th>Zeit</th><th>Typ</th><th>Betrag</th><th>Grund</th><th>Saldo</th></tr></thead>
+            <tbody id="kassenbuchBody"><tr class="empty-row"><td colspan="5">Keine Bewegungen</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VERLAUF -->
+    <section class="page" id="page-historie">
+      <div class="card">
+        <div class="filter-row">
+          <div class="filter-tabs" id="historieFilter">
+            <button class="filter-tab active" data-filter="alle">Alle</button>
+            <button class="filter-tab" data-filter="verkauf">Verkäufe</button>
+            <button class="filter-tab" data-filter="einnahme">Einnahmen</button>
+            <button class="filter-tab" data-filter="kassenbuch">Kassenbuch</button>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="exportBtn"><i class="fa fa-download"></i> Export CSV</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead><tr><th>Zeit</th><th>Typ</th><th>Beschreibung</th><th>Betrag</th><th>Gewinn</th><th>Aktion</th></tr></thead>
+            <tbody id="historieTableBody"><tr class="empty-row"><td colspan="6">Noch keine Einträge</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <i class="toast-icon fa fa-check-circle"></i>
+    <span class="toast-msg" id="toastMsg"></span>
+  </div>
+
+  <!-- MODAL: Bestand -->
+  <div class="modal-overlay" id="bestandModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Bestand anpassen</h3>
+        <button class="modal-close" id="bestandModalClose"><i class="fa fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p>Produkt: <strong id="bestandModalName"></strong></p>
+        <div class="form-group">
+          <label>Neuer Bestand</label>
+          <input type="number" id="bestandModalMenge" min="0"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="bestandModalSave">Speichern</button>
+        <button class="btn btn-ghost" id="bestandModalCancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Löschen -->
+  <div class="modal-overlay" id="rueckgaengigModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Eintrag löschen?</h3>
+        <button class="modal-close" id="rueckgaengigModalClose"><i class="fa fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p>Möchtest du diesen Eintrag wirklich löschen? Der Bestand wird wiederhergestellt.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="rueckgaengigConfirm">Ja, löschen</button>
+        <button class="btn btn-ghost" id="rueckgaengigCancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
